@@ -1,6 +1,8 @@
 package app.presentation;
 
-
+import app.beans.Departement;
+import app.beans.Localite;
+import app.beans.Personne;
 import app.exceptions.MyDBException;
 import app.helpers.DateTimeLib;
 import app.helpers.JfxPopup;
@@ -67,9 +69,9 @@ public class MainCtrl implements Initializable {
     @FXML
     private DatePicker dateNaissance;
     @FXML
-    private ComboBox<?> cbxLocalite;
+    private ComboBox<Localite> cbxLocalite;
     @FXML
-    private ComboBox<?> cbxDepartement;
+    private ComboBox<Departement> cbxDepartement;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -224,8 +226,8 @@ public class MainCtrl implements Initializable {
         p.setDatenaissance(DateTimeLib.localDateToDate(dateNaissance.getValue()));
         p.setRue(txtRue.getText());
         cbxDepartement.getSelectionModel();
-        p.setFkDep(cbxDepartement.getValue());
-        p.setFkLoc(cbxLocalite.getValue());
+        p.setFkDep((Departement) cbxDepartement.getValue());
+        p.setFkLoc((Localite) cbxLocalite.getValue());
         p.setActif(ckbActif.isSelected());
 
         try {
@@ -257,8 +259,8 @@ public class MainCtrl implements Initializable {
     @FXML
     private void menuChargerLocalites(ActionEvent event) {
         FileChooser chooser = new FileChooser();
-        chooser.setTitle("Sélectionnez le fichier des localits");
-        Path path = Paths.get("data").toAbsolutePath();
+        chooser.setTitle("Sélectionnez le fichier des localités");
+        Path path = Paths.get("../data").toAbsolutePath();
         chooser.setInitialDirectory(path.toFile());
         File file = chooser.showOpenDialog(new Stage());
         if (file != null) {
@@ -280,7 +282,7 @@ public class MainCtrl implements Initializable {
     private void menuChargerDepartement(ActionEvent event) {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Sélectionnez le fichier des départements");
-        Path path = Paths.get("data").toAbsolutePath();
+        Path path = Paths.get("../data").toAbsolutePath();
         chooser.setInitialDirectory(path.toFile());
         File file = chooser.showOpenDialog(new Stage());
         if (file != null) {
@@ -301,5 +303,12 @@ public class MainCtrl implements Initializable {
     @FXML
     private void menuRechercher(ActionEvent event) {
         String nomARechercher = JfxPopup.askInfo("Recherche", "Rechercher une personne avec le son nom", "Insérer le nom à rechercher");
+        try{
+            Personne p = dbWrk.rechercherPersonneAvecNom(nomARechercher);
+            afficherPersonne(p);
+        }
+        catch(MyDBException e){
+            JfxPopup.displayError("ERREUR", null, e.getMessage());
+        }
     }
 }
