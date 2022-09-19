@@ -45,14 +45,89 @@ public class DbWorker implements DbWorkerItf {
      */
     @Override
     public void fermerBD() {
-
+        persWrk.deconnecter();
+        locWrk.deconnecter();
+        depWrk.deconnecter();
     }
 
     @Override
     public boolean estConnecte() {
+        return persWrk.estConnectee();
     }
 
+    @Override
+    public List<Personne> lirePersonnes() throws MyDBException {
+        return persWrk.lireListe();
+    }
 
- 
+    @Override
+    public long compterPersonnes() throws MyDBException {
+        return persWrk.compter();
+    }
+
+    @Override
+    public void ajouterPersonne(Personne p) throws MyDBException {
+        persWrk.creer(p);
+    }
+
+    @Override
+    public Personne lirePersonne(Personne p) throws MyDBException {
+        return persWrk.lire(p.getPkPers());
+    }
+
+    @Override
+    public void modifierPersonne(Personne p) throws MyDBException {
+        persWrk.modifier(p);
+    }
+
+    @Override
+    public void effacerPersonne(Personne p) throws MyDBException {
+        persWrk.effacer(p.getPkPers());
+    }
+
+    @Override
+    public Personne rechercherPersonneAvecNom(String nomARechercher) throws MyDBException {
+        return persWrk.rechercher("nom", nomARechercher);
+    }
+
+    @Override
+    public List<Localite> lireLocalites() throws MyDBException {
+        return locWrk.lireListe();
+    }
+
+    @Override
+    public long compterLocalites() throws MyDBException {
+        return locWrk.compter();
+    }
+
+    @Override
+    public int lireEtSauverLocalites(File fichier, String nomCharset) throws Exception {
+        List <Localite> liste = ficLocWrk.lireFichierTexte(fichier, nomCharset);
+        int res = 0;
+        if(liste != null && !liste.isEmpty()){
+            res = locWrk.sauverListe(liste);
+        }
+        return res;
+    }
+
+    @Override
+    public List<Departement> lireDepartements() throws MyDBException {
+        return depWrk.lireListe();
+    }
+
+    @Override
+    public long compterDepartements() throws MyDBException {
+        return depWrk.compter();
+    }
+
+    @Override
+    public int lireEtSauverDepartements(File fichier, String nomCharset) throws Exception {
+        List <Departement> liste = ficDepWrk.lireFichierTexte(fichier, nomCharset);
+        int res = 0;
+        if(liste != null && !liste.isEmpty()){
+            res = depWrk.sauverListe(liste);
+        }
+        return res;
+    }
 
 }

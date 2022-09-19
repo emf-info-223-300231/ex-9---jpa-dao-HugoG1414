@@ -47,6 +47,14 @@ public class JpaDao<E, PK> implements JpaDaoItf<E, PK> {
      */
     @Override
     public void creer(E e) throws MyDBException {
+        try {
+            et.begin();
+            em.persist(e);
+            et.commit();
+        } catch (Exception ex) {
+            et.rollback();
+            throw new MyDBException(SystemLib.getFullMethodName(), ex.getMessage());
+        }
     }
 
     /**
@@ -156,7 +164,9 @@ public class JpaDao<E, PK> implements JpaDaoItf<E, PK> {
     @Override
     @SuppressWarnings("unchecked")
     public E rechercher(String prop, Object valeur) throws MyDBException {
-        return null;
+        Query query = em.createQuery("SELECT e FROM " + cl.getSimpleName() + " e WHERE e." + prop + " = :val");
+        query.setParameter("val", valeur);
+        return (E) query.getSingleResult();
     }
 
     /**
@@ -188,8 +198,19 @@ public class JpaDao<E, PK> implements JpaDaoItf<E, PK> {
      */
     @Override
     public int effacerListe() throws MyDBException {
-        int nb;
-        return nb;
+        int i = 0;
+        try {
+            et.begin();
+            for (E e : lireListe()) {
+                em.remove(e);
+                i++;
+            }
+            et.commit();
+        } catch (Exception ex) {
+            et.rollback();
+            throw new MyDBException(SystemLib.getFullMethodName(), ex.getMessage());
+        }
+        return i;
     }
 
     /**
@@ -201,8 +222,22 @@ public class JpaDao<E, PK> implements JpaDaoItf<E, PK> {
      */
     @Override
     public int sauverListe(List<E> list) throws MyDBException {
-        int nb = 0;
-        return nb;
+        int i = 0;
+        try {
+            et.begin();
+            for (E e : list) {
+                em.persist(e);
+                i++;
+            }
+            et.commit();
+        } catch (OptimisticLockException ex) {
+            et.rollback();
+            throw new MyDBException(SystemLib.getFullMethodName(), "OptimisticLockException: " + ex.getMessage());
+        } catch (Exception ex) {
+            et.rollback();
+            throw new MyDBException(SystemLib.getFullMethodName(), ex.getMessage());
+        }
+        return i;
     }
 
     /**
